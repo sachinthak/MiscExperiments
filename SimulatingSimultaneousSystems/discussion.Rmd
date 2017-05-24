@@ -1,0 +1,56 @@
+---
+title: "Discussion"
+author: "Sachintha Karunaratne"
+date: "24 May 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Simulating OLS and IV estimates in Simultaneous Equations
+
+Consider a simple supply and demand model from Using Econometrics (6th Edition, p467) by A.H. Studenmund.
+$$ 
+\begin{aligned}
+ Q_t &= \beta_0 + \beta_1P_t + \beta_2X_t + \epsilon_{Dt}\\
+ Q_t &= \alpha_0 + \alpha_1P_t + \alpha_2X_t + \epsilon_{St}
+ \end{aligned}
+$$
+where
+$$
+  \begin{aligned}
+  Q_t &= \text{demanded and supplied quantity at time } t\\
+  P_t &= \text{price at time } t\\
+  X_t &= \text{a ``a demand side'' exogenous variable, such as income}\\
+  Z_t &=  \text{a ``supply side" exogenous variable, such as weather}\\
+  \epsilon_t &= \text{error terms}
+  \end{aligned}
+$$
+Note that at equilibrium supply side and demand side quantities are equal. In this system, Quantities $Q_t$ and price $P_t$ are endogenous and determined together. 
+
+To simulate data from such a system we first set the ground truths to the parameters and assign distributions to the noise terms. For the simulation in this experimeriment we set the following:
+$$
+\begin{aligned}
+\alpha_0 &= 0\\
+\alpha_1 &= 1\\
+\alpha_2 &= 1 \\
+\beta_0 &= 0\\
+\beta_1 &= -1\\
+\beta_2 &= 1\\
+\epsilon_{Dt}  &\sim \mathcal{N(0,2)}\\
+\epsilon_{St} &\sim \mathcal{N(0,4)}\\
+r^2(X,Z) &= 0.4\\
+X_t  &\sim \mathcal{N}(3,1)\\
+Z_t  &\sim \mathcal{N}(5,4)\\
+\end{aligned}
+$$
+We can establish the relationship between $P_t,X_t$ and $Z_t$ by using the equlibrium condition. i.e
+$$
+P_t =  \frac{1}{\beta_1-\alpha_1}\left(\alpha_0 -\beta_0 + \alpha_2Z_t - \beta_2X_t + \epsilon_{St} - \epsilon_{Dt}\right)
+$$
+
+Once $P_t$ is generated the corresponding $Q_t$ can be easily gerated using either one of the supply or demand equations above. 
+
+After simulating data, I estimated the coefficients $\alpha_1,\alpha_2,\beta_1,$ and $\beta_2$ using both OLS and IV and compared against the ground truth. Clearly the OLS estimates were off compared to the IV estimates. For IV estimates I used two stage least squared method. Something to note here is that in this example I didn't need an outside instrument variable since there were 2 exogenous variables that could be consummed as instruments.
