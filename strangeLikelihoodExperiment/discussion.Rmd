@@ -1,0 +1,24 @@
+---
+title: "Discussion"
+author: "Sachintha Karunaratne"
+date: "4 June 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## When the observations are parameters of distributions
+
+I was reading through the loss function example (chapter 5) in the book "Probabilistic methods for hackers" and observed a model description that is a bit unusual. Though the model specification is simple, it took me a while to figure out what is the likelihood, what is the prior, etc. 
+
+In the example we have some prior knowledge about the sum of the price of two products ($x$). After observing the two products the observer comes up with two distributions to the estimates of individual prices ($s_1,s_2$). Let's say the distribution parameters for these 2 distributions  are $\mathbf{\theta_1}$ and $\mathbf{\theta_2}$ respectively. That is after observing the individual products, the observer decides on $p(s_1;\mathbf{\theta_1})$ and $p(s_2;\mathbf{\theta_2})$. Further suppose that the total price, $s_1 + s_2$, is distributed according to $\mathcal{N}(x,\sigma^2)$. The inference problem is to come up with a revised update of the total price, $x$, after observing the two products. Sure enough, we can easily fit a stan model, but what exactly is the posterior distribution? Is it $p(x|s_1,s_2)$? That cannot be the case because we never observed $s_1$ and $s_2$ but rather the distribution parameters of $s_1$ and $s_2$, that is $\mathbf{\theta_1}$ and $\mathbf{\theta_2}$. Is the posterior we are after is given by $p(x|\mathbf{\theta_1},\mathbf{\theta_2})$ instead? I do not think so. The reason for that is $\theta_1$ and $\theta_2$ are treated as deterministic and hence it would not make sense to think of the existence of a such a thing as $p(x|\mathbf{\theta_1},\mathbf{\theta_2})$ (This is because the above notation assumes the existence of $p(\mathbf{\theta_1},\mathbf{\theta_2}|x)$).
+
+I think the way to think about the MCMC samples (from Stan)  are  as coming from $p(x;\mathbf{\theta_1},\mathbf{\theta_2})$. Note the use of ";" instead of "|". The following equation for $p(x;\mathbf{\theta_1},\mathbf{\theta_2})$ allows more clarity into the model.
+$$ 
+\begin{eqnarray}
+  p(x;\mathbf{\theta_1},\mathbf{\theta_2}) &=& \int p(x,s_1,s_2;\mathbf{\theta_1},\mathbf{\theta_2})ds_1ds_2\\
+  &=& \int p(x|s_1,s_2)p(s_1,s_2;\mathbf{\theta_1},\mathbf{\theta_2})ds_1ds_2\\
+\end{eqnarray}
+$$
